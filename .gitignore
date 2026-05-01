@@ -1,34 +1,84 @@
-# Gradle files
-.gradle/
-build/
+<!DOCTYPE html><html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Richi New Star - Мини игра</title>
+<style>
+body { margin:0; font-family:Arial; background:#0b0b0b; color:white; text-align:center; }
+#menu { position:absolute; width:100%; top:40%; }
+button { padding:15px 30px; font-size:18px; border:none; border-radius:10px; background:#e11d48; color:white; cursor:pointer; }
+#game { display:none; position:relative; width:100vw; height:100vh; overflow:hidden; }
+#player { position:absolute; bottom:50px; left:50px; width:50px; height:50px; background:red; border-radius:10px; }
+.obstacle { position:absolute; bottom:50px; width:40px; height:40px; background:lime; }
+#score { position:absolute; top:10px; left:10px; }
+</style>
+</head>
+<body><div id="menu">
+<h1>🕷 Richi New Star</h1>
+<p>Мини игра: Прыжок героя</p>
+<button onclick="startGame()">Играть</button>
+</div><div id="game">
+<div id="player"></div>
+<div id="score">Счёт: 0</div>
+</div><script>
+let player = document.getElementById("player");
+let scoreEl = document.getElementById("score");
+let game = document.getElementById("game");
+let menu = document.getElementById("menu");
 
-# Local configuration file (sdk path, etc)
-local.properties
+let velocity = 0;
+let gravity = -0.8;
+let isJumping = false;
+let score = 0;
 
-# Log/OS Files
-*.log
+function startGame(){
+ menu.style.display = "none";
+ game.style.display = "block";
+ loop();
+ setInterval(createObstacle,2000);
+}
 
-# Android Studio generated files and folders
-captures/
-.externalNativeBuild/
-.cxx/
-*.aab
-*.apk
-output-metadata.json
+function jump(){
+ if(!isJumping){ velocity = 15; isJumping = true; }
+}
 
-# IntelliJ
-*.iml
-.idea/
-misc.xml
-deploymentTargetDropDown.xml
-render.experimental.xml
+document.addEventListener("keydown", jump);
 
-# Keystore files
-*.jks
-*.keystore
+function createObstacle(){
+ let obs = document.createElement("div");
+ obs.classList.add("obstacle");
+ obs.style.right = "0px";
+ game.appendChild(obs);
 
-# Google Services (e.g. APIs or Firebase)
-google-services.json
+ let move = setInterval(()=>{
+ let right = parseInt(obs.style.right);
+ obs.style.right = right + 5 + "px";
 
-# Android Profiling
-*.hprof
+ let pr = player.getBoundingClientRect();
+ let or = obs.getBoundingClientRect();
+
+ if(pr.left < or.right && pr.right > or.left && pr.bottom > or.top){
+ alert("Игра окончена! Счёт: " + score);
+ location.reload();
+ }
+
+ if(right > window.innerWidth){
+ obs.remove();
+ clearInterval(move);
+ score++;
+ scoreEl.textContent = "Счёт: " + score;
+ }
+ },20);
+}
+
+function loop(){
+ velocity += gravity;
+ let bottom = parseInt(player.style.bottom || 50);
+ bottom += velocity;
+
+ if(bottom <= 50){ bottom = 50; isJumping = false; }
+ player.style.bottom = bottom + "px";
+ requestAnimationFrame(loop);
+}
+</script></body>
+</html>
